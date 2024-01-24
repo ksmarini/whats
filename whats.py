@@ -1,3 +1,4 @@
+import os
 from faker import Faker
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -6,27 +7,28 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
-# from webdriver_manager.firefox import GeckoDriverManager
-# from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.chrome.options import Options
 from time import sleep
 
 
 fake = Faker('pt_BR')
 
-options = webdriver.ChromeOptions()
+profile = os.path.join(os.getcwd(), "profile", "wpp")
+
+options = Options()
+options.add_argument(f"user-data-dir={profile}")
+# options.add_argument('--headless')
+
 service = Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service=service, options=options)
-# service = Service(GeckoDriverManager().install())
-# options = webdriver.FirefoxOptions()
-# driver = webdriver.Firefox(service=service, options=options)
+driver.implicitly_wait(2)
 
 
 def abrir_janela_whatsapp():
     driver.get("https://web.whatsapp.com/")
     wait = WebDriverWait(driver, timeout=60)
     driver.maximize_window()
-    barra_lateral = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="side"]')))
-    driver.implicitly_wait(2)
+    wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="side"]')))
 
 
 def abrir_janela_conversa(numero_contato):
@@ -38,15 +40,12 @@ def abrir_janela_conversa(numero_contato):
     nova_conversa.click()
 
     barra_pesquisa = driver.find_element(By.XPATH, '//div[@title="Caixa de texto de pesquisa"]')
-    driver.implicitly_wait(2)
-    # barra_pesquisa.send_keys(numero_contato)
 
     for num in numero_contato:
         barra_pesquisa.send_keys(num)
         sleep(1)
 
     barra_pesquisa.send_keys(Keys.RETURN)
-
 
 
 def sai_das_conversas():
@@ -56,16 +55,25 @@ def sai_das_conversas():
     barra_pesquisa.send_keys(Keys.ESCAPE)
 
 
-
 def envia_mensagens(mensagem):
     barra_mensagem = driver.find_element(By.XPATH, '//div[@title="Digite uma mensagem"]')
     barra_mensagem.send_keys(mensagem)
     barra_mensagem.send_keys(Keys.RETURN)
 
 
+def prepara_mensagens_barra_navegacao(numero, mensagem):
+    driver.get(f"https://web.whatsapp.com/send?phone={numero}&text={mensagem}")
+    wait = WebDriverWait(driver, timeout=60)
+    barra_lateral = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="side"]')))
+    barra_mensagem = driver.find_element(By.XPATH, '//div[@title="Digite uma mensagem"]')
+    barra_mensagem.send_keys(mensagem)
+    barra_mensagem.send_keys(Keys.RETURN)
+
+
 if __name__ == '__main__':
-    contatos = ['556992809962', '556992768408', '551132511229']
+    contatos = ['556992809962', '55 69 8482-6823']
     mensagem = f"""
+    Este é um teste de automatização!
     Por favor, ignore essa mensagem.
     """
     abrir_janela_whatsapp()
@@ -73,12 +81,11 @@ if __name__ == '__main__':
     for contato in contatos:
         abrir_janela_conversa(contato)
         sleep(1)
+        # prepara_mensagens_barra_navegacao(contato, f'Olá {fake.name()}!\n{mensagem}')
         envia_mensagens(f'Olá {fake.name()}!\n{mensagem}')
         sleep(1)
         sai_das_conversas()
         sleep(1)
 
-
     sleep(200)
-
-
+    driver.close()
