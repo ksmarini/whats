@@ -61,15 +61,6 @@ def envia_mensagens(mensagem):
     barra_mensagem.send_keys(Keys.RETURN)
 
 
-def prepara_mensagens_barra_navegacao(numero, mensagem):
-    driver.get(f"https://web.whatsapp.com/send?phone={numero}&text={mensagem}")
-    wait = WebDriverWait(driver, timeout=60)
-    barra_lateral = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="side"]')))
-    barra_mensagem = driver.find_element(By.XPATH, '//div[@title="Digite uma mensagem"]')
-    barra_mensagem.send_keys(mensagem)
-    barra_mensagem.send_keys(Keys.RETURN)
-
-
 if __name__ == '__main__':
     contatos = ['556992809962', '55 69 8482-6823']
     mensagem = f"""
@@ -81,7 +72,6 @@ if __name__ == '__main__':
     for contato in contatos:
         abrir_janela_conversa(contato)
         sleep(1)
-        # prepara_mensagens_barra_navegacao(contato, f'Olá {fake.name()}!\n{mensagem}')
         envia_mensagens(f'Olá {fake.name()}!\n{mensagem}')
         sleep(1)
         sai_das_conversas()
