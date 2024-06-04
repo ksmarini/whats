@@ -62,7 +62,7 @@ def envia_mensagens(mensagem):
 
 
 if __name__ == '__main__':
-    contatos = ['556992809962', '55 69 8482-6823']
+    contatos = ['5599999999999', '55 69 6969-6969']
     mensagem = f"""
     Este é um teste de automatização!
     Por favor, ignore essa mensagem.
